@@ -1,5 +1,6 @@
 package com.example.panta.instagramimagedownloader
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -14,6 +15,7 @@ import com.example.panta.instagramimagedownloader.MyArrayAdapter.ViewHolder
 import android.support.design.widget.CoordinatorLayout.Behavior.setTag
 import android.util.Log
 import android.widget.TextView
+import android.widget.Toast
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -25,7 +27,7 @@ import javax.net.ssl.HttpsURLConnection
 class MyArrayAdapter(private val context: Context, private val itemLayoutId:Int, private val imageUrlList: List<String>) : BaseAdapter() {
 
     data class ViewHolder(var image: ImageView)
-    private val imgDownloader = ImageDownloader()
+    private val imgDownloader = ImageDownloader(context)
 
     private var inflater: LayoutInflater = LayoutInflater.from(context)
     private val layoutId = itemLayoutId
@@ -43,7 +45,8 @@ class MyArrayAdapter(private val context: Context, private val itemLayoutId:Int,
 
     }
 
-    override fun getView(position: Int,convertView: View?, parent: ViewGroup?): View {
+    @SuppressLint("ShowToast")
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
          var convertViewTmp: View? = convertView
 
         val holder: ViewHolder
@@ -57,17 +60,27 @@ class MyArrayAdapter(private val context: Context, private val itemLayoutId:Int,
             holder = convertViewTmp!!.tag as ViewHolder
         }
 
-        //val handler = Handler()
+        val handler = Handler()
         GlobalScope.launch{
             try{
                 val asyncImage = imgDownloader.asyncDownloadBitmap(imageUrlList[position])
                 val image = asyncImage.await()
-                val resizedBitmap = controlBitmapSize(image)
+                //val resizedBitmap = controlBitmapSize(image)
 
-                holder.image.maxWidth = resizedBitmap.width
-                holder.image.maxHeight = resizedBitmap.height
+                //holder.image.maxWidth = resizedBitmap.width
+                //holder.image.maxHeight = resizedBitmap.height
 
-                holder.image.setImageBitmap(resizedBitmap)
+                //holder.image.setImageBitmap(resizedBitmap)
+                if(image == null){
+                    uiThread{
+                        Toast.makeText(context, "この画像は表示することはできません。", Toast.LENGTH_LONG).show()
+                    }
+                }else{
+                    handler.post{
+                        holder.image.setImageBitmap(image)
+                    }
+                }
+
 
 
             }catch(e: Exception){
@@ -79,7 +92,7 @@ class MyArrayAdapter(private val context: Context, private val itemLayoutId:Int,
         return convertViewTmp
     }
 
-    private fun controlBitmapSize(bitmap: Bitmap): Bitmap{
+    /*private fun controlBitmapSize(bitmap: Bitmap): Bitmap{
         val ratio:Double = 300.0 / bitmap.width
         Log.d("Width", bitmap.width.toString())
         Log.d("Height",bitmap.height.toString())
@@ -87,5 +100,5 @@ class MyArrayAdapter(private val context: Context, private val itemLayoutId:Int,
         val height = (bitmap.height * ratio).toInt()
         Log.d("NewWidth", width.toString())
         return Bitmap.createScaledBitmap(bitmap, width,height,true)
-    }
+    }*/
 }

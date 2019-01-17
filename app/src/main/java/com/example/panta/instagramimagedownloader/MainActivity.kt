@@ -7,11 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import android.view.View
-import android.webkit.JavascriptInterface
 import android.webkit.WebView
-import android.webkit.WebViewClient
 import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
@@ -68,11 +64,3 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-/*
-var a = "";
-var d = document.links;
-for(var i = 0; i < d.length; i++){
-    a += d[i];
-}
-alert(a);
- */

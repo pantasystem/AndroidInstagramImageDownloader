@@ -8,13 +8,17 @@ import android.support.annotation.RequiresApi
 import android.support.v7.app.AlertDialog
 import android.util.Log
 import android.widget.BaseAdapter
+import android.widget.Button
 import android.widget.ListView
 import android.widget.Toast
 
 class ImageSelectorActivity : AppCompatActivity() {
 
     lateinit var listView: ListView
-    private val imageDownloader = ImageDownloader()
+    lateinit var returnButton: Button
+    lateinit var allSaveButton: Button
+
+    private lateinit var imageDownloader:ImageDownloader
 
     @SuppressLint("ShowToast")
     @RequiresApi(Build.VERSION_CODES.O)
@@ -23,6 +27,8 @@ class ImageSelectorActivity : AppCompatActivity() {
         setContentView(R.layout.activity_image_selector)
 
         listView = findViewById(R.id.listView)
+        imageDownloader = ImageDownloader(applicationContext)
+
         val intent = intent
         val listBean = intent.getSerializableExtra("listBean") as ListBean
         Log.d("list", listBean.list.toString())
@@ -42,11 +48,20 @@ class ImageSelectorActivity : AppCompatActivity() {
                 setMessage("必ず画像の投稿者の了承を得てから保存してください。")
                 setPositiveButton("OK") { _, _ ->
                     imageDownloader.saveImage(item)
-                    Toast.makeText(applicationContext, "画像の保存が完了しました", Toast.LENGTH_LONG)
+
+                    Toast.makeText(applicationContext, "画像の保存が完了しました", Toast.LENGTH_LONG).show()
+
                 }
                 setNegativeButton("Cancel", null)
             }.show()
             //imageDownloader.saveImage(item)
         }
+
+
+    }
+
+    override fun onStart(){
+        super.onStart()
+
     }
 }
