@@ -45,7 +45,7 @@ class MyArrayAdapter(private val context: Context, private val itemLayoutId:Int,
 
     }
 
-    @SuppressLint("ShowToast")
+    @SuppressLint("ShowToast", "SetTextI18n")
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
          var convertViewTmp: View? = convertView
 
@@ -65,10 +65,8 @@ class MyArrayAdapter(private val context: Context, private val itemLayoutId:Int,
             try{
                 val asyncImage = imgDownloader.asyncDownloadBitmap(imageUrlList[position])
                 val image = asyncImage.await()
-                //val resizedBitmap = controlBitmapSize(image)
 
-                //holder.image.maxWidth = resizedBitmap.width
-                //holder.image.maxHeight = resizedBitmap.height
+
 
                 //holder.image.setImageBitmap(resizedBitmap)
                 if(image == null){
@@ -76,6 +74,8 @@ class MyArrayAdapter(private val context: Context, private val itemLayoutId:Int,
                         Toast.makeText(context, "この画像は表示することはできません。", Toast.LENGTH_LONG).show()
                     }
                 }else{
+
+                    image.height
                     handler.post{
                         holder.image.setImageBitmap(image)
                     }

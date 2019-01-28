@@ -1,6 +1,7 @@
 package com.example.panta.instagramimagedownloader
 
 import android.annotation.SuppressLint
+import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
@@ -35,6 +36,8 @@ class WebViewActivity : AppCompatActivity() {
         url = intent.getStringExtra("url")
 
         webView = findViewById(R.id.webView)
+
+        title = "画像を読み込んでいます・・"
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -47,6 +50,8 @@ class WebViewActivity : AppCompatActivity() {
         webView.visibility = View.VISIBLE
         webView.loadUrl(url)
         webView.addJavascriptInterface(MyJavaScriptInterface(applicationContext),"ImageGetter")
+
+
     }
 
     inner class MyWebClient: WebViewClient(){
@@ -65,8 +70,10 @@ class WebViewActivity : AppCompatActivity() {
         fun callMe(message: String){
 
 
+            //Log.d("Message", message)
+            Thread.sleep(10)
             val list = message.split(",").filter{
-                it.isNotBlank() && domainCheck(it)
+                it.isNotBlank() &&  domainCheck(it)
             }
 
             if(list.isNotEmpty()){
@@ -81,14 +88,19 @@ class WebViewActivity : AppCompatActivity() {
 
         }
     }
-
-    fun domainCheck(url: String):Boolean{
+    private fun domainCheck(url: String?):Boolean{
+        //Log.d("URL", url)
         return when{
+            url == null -> false
             url.startsWith("https://pbs.twimg.com") && url.endsWith(".jpg") -> true
             url.startsWith("https://instagram") && url.endsWith(".net") -> true
             url.endsWith(".jpg") -> true
             url.endsWith(".png") -> true
+            url.startsWith("https://encrypted") -> true
+            url.startsWith("data:image") -> false
+            url.startsWith("http://") || url.startsWith("https://") -> true
             else -> false
         }
     }
+
 }

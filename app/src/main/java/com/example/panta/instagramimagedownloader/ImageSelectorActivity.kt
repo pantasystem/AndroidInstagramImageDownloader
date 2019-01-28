@@ -31,7 +31,7 @@ class ImageSelectorActivity : AppCompatActivity() {
 
         val intent = intent
         val listBean = intent.getSerializableExtra("listBean") as ListBean
-        Log.d("list", listBean.list.toString())
+        //Log.d("list", listBean.list.toString())
 
         title = "保存する画像をタップしてください"
 
@@ -64,4 +64,6 @@ class ImageSelectorActivity : AppCompatActivity() {
         super.onStart()
 
     }
+
+
 }

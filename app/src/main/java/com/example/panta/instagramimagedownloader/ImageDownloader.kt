@@ -27,16 +27,16 @@ class ImageDownloader(private val context: Context){
     @SuppressLint("ShowToast")
     fun asyncDownloadBitmap(url : String) = GlobalScope.async {
 
+        Log.d("AfterURL", url)
+
         try{
             val imgUrl = URL(url)
             val connection =
                 if(url.startsWith("http://")){
                     imgUrl.openConnection() as HttpURLConnection
-                    //url.openConnection() as HttpsURLConnection
                 }else{
                     imgUrl.openConnection() as HttpsURLConnection
                 }
-            //val connection = imgUrl.openConnection() as HttpsURLConnection
             connection.requestMethod = "GET"
             connection.connect()
             val stream = connection.inputStream
@@ -56,23 +56,9 @@ class ImageDownloader(private val context: Context){
     @RequiresApi(Build.VERSION_CODES.O)
     fun saveImage(url: String){
 
-        Log.d("URL", url)
-
-        if(url.isBlank()){
-            //urlが空でないかを判定
-            uiThread{
-                Toast.makeText(context, "画像ではありません", Toast.LENGTH_LONG).show()
-            }
-            return
-        }
-        val extDir = Environment.getExternalStorageDirectory()
-        val basePath = "${extDir.absolutePath}/${Environment.DIRECTORY_DCIM}"
-        val apkFilePath = "$basePath/ImageDownloader"
-        if(Files.notExists(Paths.get(apkFilePath))){
-            val newDir = File(apkFilePath)
-            newDir.mkdir()
-        }
-        val file = File("$apkFilePath/${makeFileName()}")
+        val dCIMPath = getDCIMPath()
+        Log.d("PATH", dCIMPath)
+        val file = checkIfNotDirectoryMakeIt(dCIMPath , "ImageDownloader", makeFileName())
 
         val outStream = FileOutputStream(file)
 
@@ -81,6 +67,7 @@ class ImageDownloader(private val context: Context){
             val bitmapImg = deferredImg.await()
 
             //Bitmapが画像であるかを判定
+
             if(bitmapImg == null){
                 uiThread{
                     Toast.makeText(context, "", Toast.LENGTH_LONG)
@@ -91,9 +78,25 @@ class ImageDownloader(private val context: Context){
         }
     }
 
+    private fun getDCIMPath():String{
+        val extDir = Environment.getExternalStorageDirectory()
+        return "${extDir.absolutePath}/${Environment.DIRECTORY_DCIM}"
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun checkIfNotDirectoryMakeIt(basePath: String, directory: String, fileName:String):File{
+        val path = "$basePath/$directory"
+        if(Files.notExists(Paths.get(path))){
+            val newDir = File(path)
+            newDir.mkdir()
+        }
+        return File("$path/$fileName")
+    }
     //時間にも基づいてファイル名を作成します。
     private fun makeFileName(): String{
         val c = Calendar.getInstance()
         return "${c[Calendar.YEAR]}_${c[Calendar.MONTH] + 1}_${c[Calendar.DAY_OF_MONTH]}_${c[Calendar.HOUR_OF_DAY]}_${c[Calendar.MINUTE]}${c[Calendar.SECOND]}_${c[Calendar.MILLISECOND]}.jpg"
     }
+
+
 }
